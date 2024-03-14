@@ -43,6 +43,7 @@ class Player{
     }
 
     update(){
+        this.checa();
         this.playerInfo.positionX -= this.playerInfo.velocity;
         this.player.position.x = this.playerInfo.positionX;
     }
@@ -50,6 +51,19 @@ class Player{
     para(){
         this.playerInfo.velocity = 0;
     }
+
+    checa(){
+        if(this.playerInfo.velocity>0 && !tadecostas){
+            alert("perdeu!");
+        }
+        if(this.playerInfo.positionX < -6){
+            alerta("venceu");
+        }
+    }
+}
+
+function delay(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
@@ -65,14 +79,49 @@ class boneca{
     }
     praTras(){
         gsap.to(this.Boneca1.rotation, {y:-3.15, duration: 1});
+        setTimeout(()=>tadecostas=true,450);
     }
     praFrente(){
         gsap.to(this.Boneca1.rotation, {y:0, duration: 1});
+        setTimeout(()=>tadecostas=false,150);
+    }
+
+    async start(){
+        this.praTras();
+        await delay((Math.random()*1000)+1000);
+        this.praFrente();
+        await delay((Math.random()*1000)+1000);
+        this.start();
     }
 }
 
 let Player1 = new Player();
 let Boneca1 = new boneca();
+const text = document.querySelector(".text");
+const tmaximo = 10;
+let gamestatus = "esperando";
+let tadecostas = true;
+
+async function init(){
+    await delay(500);
+    text.innerText = "Começando em 3";
+    await delay(500);
+    text.innerText = "Começando em 2";
+    await delay(500);
+    text.innerText = "Começando em 1";
+    await delay(500);
+    text.innerText = "VAI!";
+    startGame();
+}
+
+function startGame(){
+    gamestatus = "jogando";
+    Boneca1.start();
+}
+
+init()
+
+
 setTimeout(()=>{
     Boneca1.praTras},1000);
 
@@ -104,11 +153,10 @@ function onWindowResize(){
 
 // Pressione a tecla
 window.addEventListener('keydown', function(e){
+    if(gamestatus != "jogando") return;
     if(e.keyCode == 37){
         Player1.anda();
-        console.log(false);
     }
-    console.log(true);
 })
 
 
